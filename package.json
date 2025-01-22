@@ -1,8 +1,8 @@
 {
-  "name": "bytebank-Fiap-Fase2-Api",
+  "name": "bytebank-fiap-fase2-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API para o Bytebank",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "json-server": "0.17.4"
+    "express": "^4.17.1",
+    "body-parser": "^1.19.0",
+    "mongoose": "^8.9.5",
+    "mongodb-memory-server": "^8.10.1"
   }
 }
