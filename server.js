@@ -6,6 +6,9 @@ const { MongoMemoryServer } = require("mongodb-memory-server");
 const app = express();
 app.use(bodyParser.json());
 
+// Configurar o MongoMemoryServer para usar um diretório temporário
+process.env.MONGOMS_TMPDIR = "/tmp";
+
 const mongoServer = new MongoMemoryServer();
 
 async function startServer() {
