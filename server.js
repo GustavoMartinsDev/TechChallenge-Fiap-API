@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const { MongoMemoryServer } = require("mongodb-memory-server");
+const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
@@ -153,6 +154,11 @@ async function startServer() {
           console.error("Error deleting transaction:", err);
           res.status(500).json({ message: err.message });
         }
+      });
+
+      // Serve the HTML file
+      app.get("/", (req, res) => {
+        res.sendFile(path.join(__dirname, "index.html"));
       });
 
       app.listen(5000, () => {
