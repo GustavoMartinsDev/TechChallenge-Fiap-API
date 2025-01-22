@@ -6,15 +6,14 @@ const path = require("path");
 const app = express();
 app.use(bodyParser.json());
 
-const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/test";
+const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:5000/test";
 
-mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(mongoUri);
 
 const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
+db.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
 db.once("open", async function () {
   console.log("Connected to MongoDB");
 
@@ -49,13 +48,17 @@ db.once("open", async function () {
     currency: "R$",
   };
 
-  const existingAccount = await Account.findOne({
-    fullName: defaultAccount.fullName,
-  });
-  if (!existingAccount) {
-    const newAccount = new Account(defaultAccount);
-    await newAccount.save();
-    console.log("Default account data inserted");
+  try {
+    const existingAccount = await Account.findOne({
+      fullName: defaultAccount.fullName,
+    });
+    if (!existingAccount) {
+      const newAccount = new Account(defaultAccount);
+      await newAccount.save();
+      console.log("Default account data inserted");
+    }
+  } catch (err) {
+    console.error("Error inserting default account data:", err);
   }
 
   // Account routes
@@ -150,15 +153,8 @@ db.once("open", async function () {
     }
   });
 
-  // Serve the HTML file
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "index.html"));
-  });
-
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
 });
-
-startServer();
