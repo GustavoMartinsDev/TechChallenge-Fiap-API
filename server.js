@@ -117,7 +117,7 @@ db.once("open", async function () {
       default: "",
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Number,
       ref: "Account",
       required: true,
     },
