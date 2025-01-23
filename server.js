@@ -236,7 +236,7 @@ db.once("open", async function () {
       }
 
       const userId = transaction.userId;
-      await transaction.remove();
+      await Transaction.deleteOne({ id: req.params.id });
 
       // Update the user's balance
       await updateAccountBalance(userId);
