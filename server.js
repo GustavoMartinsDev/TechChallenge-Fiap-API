@@ -118,8 +118,7 @@ db.once("open", async function () {
     },
     userId: {
       type: Number,
-      required: false,
-      default: 0,
+      required: true,
     },
   });
 
@@ -132,7 +131,7 @@ db.once("open", async function () {
       (acc, transaction) => acc + transaction.value,
       0
     );
-    await Account.findByIdAndUpdate(userId, { balance });
+    await Account.findOneAndUpdate({ id: userId }, { balance });
   }
 
   // Routes for inserting and querying data
@@ -228,6 +227,27 @@ db.once("open", async function () {
     }
   });
 
+  // Route to delete a transaction
+  app.delete("/transactions/:id", async (req, res) => {
+    try {
+      const transaction = await Transaction.findById(req.params.id);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      const userId = transaction.userId;
+      await transaction.remove();
+
+      // Update the user's balance
+      await updateAccountBalance(userId);
+
+      res.status(200).json({ message: "Transaction deleted" });
+    } catch (err) {
+      console.error("Error deleting transaction:", err);
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // Route to get all transactions
   app.get("/transactions", async (req, res) => {
     try {
@@ -253,7 +273,7 @@ db.once("open", async function () {
     }
   });
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
