@@ -19,23 +19,75 @@ db.once("open", async function () {
 
   // Account schema and model
   const accountSchema = new mongoose.Schema({
-    fullName: String,
-    firstName: String,
-    balance: Number,
-    currency: String,
+    id: {
+      type: String,
+      required: true,
+    },
+    fullName: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    firstName: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    lastName: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    balance: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    currency: {
+      type: String,
+      required: false,
+      default: "R$",
+    },
   });
 
   const Account = mongoose.model("Account", accountSchema);
 
   // Transaction schema and model
   const transactionSchema = new mongoose.Schema({
-    id: String,
-    type: String,
-    date: String,
-    value: Number,
-    currency: String,
-    fileBase64: String,
-    fileName: String,
+    id: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+      default: "defaultType",
+    },
+    date: {
+      type: String,
+      required: true,
+      default: new Date().toISOString(),
+    },
+    value: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    currency: {
+      type: String,
+      required: true,
+      default: "R$",
+    },
+    fileBase64: {
+      type: String,
+      required: false,
+      default: "",
+    },
+    fileName: {
+      type: String,
+      required: false,
+      default: "",
+    },
   });
 
   const Transaction = mongoose.model("Transaction", transactionSchema);
