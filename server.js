@@ -208,7 +208,7 @@ db.once("open", async function () {
   // Route to update a transaction
   app.put("/transactions/:id", async (req, res) => {
     try {
-      const transaction = await Transaction.findById(req.params.id);
+      const transaction = await Transaction.findOne({ id: req.params.id });
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not found" });
       }
@@ -230,7 +230,7 @@ db.once("open", async function () {
   // Route to delete a transaction
   app.delete("/transactions/:id", async (req, res) => {
     try {
-      const transaction = await Transaction.findById(req.params.id);
+      const transaction = await Transaction.findOne({ id: req.params.id });
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not found" });
       }
@@ -262,7 +262,7 @@ db.once("open", async function () {
   // Route to get a specific transaction by ID
   app.get("/transactions/:id", async (req, res) => {
     try {
-      const transaction = await Transaction.findById(req.params.id);
+      const transaction = await Transaction.findOne({ id: req.params.id });
       if (!transaction) {
         return res.status(404).json({ message: "Transaction not found" });
       }
