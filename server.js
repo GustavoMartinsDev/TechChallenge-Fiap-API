@@ -251,7 +251,7 @@ db.once("open", async function () {
   // Route to get all transactions
   app.get("/transactions", async (req, res) => {
     try {
-      const transactions = await Transaction.find();
+      const transactions = await Transaction.find().sort({ date: -1 });
       res.status(200).json(transactions);
     } catch (err) {
       console.error("Error fetching transactions:", err);
