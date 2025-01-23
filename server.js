@@ -21,7 +21,7 @@ db.once("open", async function () {
   const accountSchema = new mongoose.Schema({
     id: {
       type: String,
-      required: true,
+      required: false,
     },
     fullName: {
       type: String,
@@ -56,7 +56,7 @@ db.once("open", async function () {
   const transactionSchema = new mongoose.Schema({
     id: {
       type: String,
-      required: true,
+      required: false,
     },
     type: {
       type: String,
