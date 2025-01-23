@@ -1,10 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cors = require("cors"); // Adicione esta linha
 const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
+app.use(cors()); // Adicione esta linha
 
 const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:5000/test";
 
@@ -73,47 +75,11 @@ db.once("open", async function () {
       required: true,
       default: 0,
     },
-    currency: {
-      type: String,
-      required: true,
-      default: "R$",
-    },
-    fileBase64: {
-      type: String,
-      required: false,
-      default: "",
-    },
-    fileName: {
-      type: String,
-      required: false,
-      default: "",
-    },
   });
 
   const Transaction = mongoose.model("Transaction", transactionSchema);
 
-  // Insert default account data if not exists
-  const defaultAccount = {
-    fullName: "Joana da Silva Oliveira",
-    firstName: "Joana",
-    balance: 2500,
-    currency: "R$",
-  };
-
-  try {
-    const existingAccount = await Account.findOne({
-      fullName: defaultAccount.fullName,
-    });
-    if (!existingAccount) {
-      const newAccount = new Account(defaultAccount);
-      await newAccount.save();
-      console.log("Default account data inserted");
-    }
-  } catch (err) {
-    console.error("Error inserting default account data:", err);
-  }
-
-  // Account routes
+  // Defina suas rotas aqui
   app.post("/accounts", async (req, res) => {
     const newAccount = new Account(req.body);
     try {
@@ -125,41 +91,6 @@ db.once("open", async function () {
     }
   });
 
-  app.get("/accounts", async (req, res) => {
-    try {
-      const accounts = await Account.find();
-      res.json(accounts);
-    } catch (err) {
-      console.error("Error fetching accounts:", err);
-      res.status(500).json({ message: err.message });
-    }
-  });
-
-  app.put("/accounts/:id", async (req, res) => {
-    try {
-      const updatedAccount = await Account.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-      res.json(updatedAccount);
-    } catch (err) {
-      console.error("Error updating account:", err);
-      res.status(400).json({ message: err.message });
-    }
-  });
-
-  app.delete("/accounts/:id", async (req, res) => {
-    try {
-      await Account.findByIdAndDelete(req.params.id);
-      res.json({ message: "Account deleted" });
-    } catch (err) {
-      console.error("Error deleting account:", err);
-      res.status(500).json({ message: err.message });
-    }
-  });
-
-  // Transaction routes
   app.post("/transactions", async (req, res) => {
     const newTransaction = new Transaction(req.body);
     try {
@@ -168,40 +99,6 @@ db.once("open", async function () {
     } catch (err) {
       console.error("Error creating transaction:", err);
       res.status(400).json({ message: err.message });
-    }
-  });
-
-  app.get("/transactions", async (req, res) => {
-    try {
-      const transactions = await Transaction.find();
-      res.json(transactions);
-    } catch (err) {
-      console.error("Error fetching transactions:", err);
-      res.status(500).json({ message: err.message });
-    }
-  });
-
-  app.put("/transactions/:id", async (req, res) => {
-    try {
-      const updatedTransaction = await Transaction.findByIdAndUpdate(
-        req.params.id,
-        req.body,
-        { new: true }
-      );
-      res.json(updatedTransaction);
-    } catch (err) {
-      console.error("Error updating transaction:", err);
-      res.status(400).json({ message: err.message });
-    }
-  });
-
-  app.delete("/transactions/:id", async (req, res) => {
-    try {
-      await Transaction.findByIdAndDelete(req.params.id);
-      res.json({ message: "Transaction deleted" });
-    } catch (err) {
-      console.error("Error deleting transaction:", err);
-      res.status(500).json({ message: err.message });
     }
   });
 
