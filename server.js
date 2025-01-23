@@ -118,8 +118,8 @@ db.once("open", async function () {
     },
     userId: {
       type: Number,
-      ref: "Account",
-      required: true,
+      required: false,
+      default: 0,
     },
   });
 
