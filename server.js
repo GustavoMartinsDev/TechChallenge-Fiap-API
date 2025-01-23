@@ -116,9 +116,24 @@ db.once("open", async function () {
       required: false,
       default: "",
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account",
+      required: true,
+    },
   });
 
   const Transaction = mongoose.model("Transaction", transactionSchema);
+
+  // Function to update account balance based on transactions
+  async function updateAccountBalance(userId) {
+    const transactions = await Transaction.find({ userId });
+    const balance = transactions.reduce(
+      (acc, transaction) => acc + transaction.value,
+      0
+    );
+    await Account.findByIdAndUpdate(userId, { balance });
+  }
 
   // Routes for inserting and querying data
 
@@ -138,7 +153,21 @@ db.once("open", async function () {
   // Route to get all accounts
   app.get("/accounts", async (req, res) => {
     try {
-      const accounts = await Account.find();
+      let accounts = await Account.find();
+      if (accounts.length === 0) {
+        // Create default account if no accounts exist
+        const newId = await getNextSequenceValue("accountId");
+        const defaultAccount = new Account({
+          id: newId,
+          fullName: "Joana da Silva Oliveira",
+          firstName: "Joana",
+          lastName: "Oliveira",
+          balance: 2500,
+          currency: "R$",
+        });
+        await defaultAccount.save();
+        accounts = [defaultAccount];
+      }
       res.status(200).json(accounts);
     } catch (err) {
       console.error("Error fetching accounts:", err);
@@ -166,9 +195,35 @@ db.once("open", async function () {
       const newId = await getNextSequenceValue("transactionId");
       const newTransaction = new Transaction({ ...req.body, id: newId });
       const savedTransaction = await newTransaction.save();
+
+      // Update the user's balance
+      await updateAccountBalance(req.body.userId);
+
       res.status(201).json(savedTransaction);
     } catch (err) {
       console.error("Error creating transaction:", err);
+      res.status(400).json({ message: err.message });
+    }
+  });
+
+  // Route to update a transaction
+  app.put("/transactions/:id", async (req, res) => {
+    try {
+      const transaction = await Transaction.findById(req.params.id);
+      if (!transaction) {
+        return res.status(404).json({ message: "Transaction not found" });
+      }
+
+      // Update the transaction
+      Object.assign(transaction, req.body);
+      const updatedTransaction = await transaction.save();
+
+      // Update the user's balance
+      await updateAccountBalance(req.body.userId);
+
+      res.status(200).json(updatedTransaction);
+    } catch (err) {
+      console.error("Error updating transaction:", err);
       res.status(400).json({ message: err.message });
     }
   });
@@ -198,7 +253,7 @@ db.once("open", async function () {
     }
   });
 
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
